@@ -23,10 +23,24 @@
       pointer-events: none;
       display: none;
     }
+
+    .touch-circle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      pointer-events: none;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="touch-indicator">Swipe left or right</div>
+  <div class="touch-circle"></div>
 
   <script type="importmap">
     {
@@ -203,6 +217,7 @@
     }
 
     const touchIndicator = document.querySelector('.touch-indicator')
+    const touchCircle = document.querySelector('.touch-circle')
 
     window.addEventListener('keydown', (event) => {
       switch (event.code) {
@@ -229,11 +244,18 @@
     window.addEventListener('touchstart', (event) => {
       touch.startX = event.touches[0].clientX
       touch.startY = event.touches[0].clientY
+
+      // Show touch circle and update its position
+      touchCircle.style.display = 'block'
+      updateTouchCirclePosition(touch.startX, touch.startY)
     })
 
     window.addEventListener('touchmove', (event) => {
       touch.endX = event.touches[0].clientX
       touch.endY = event.touches[0].clientY
+
+      // Update touch circle position
+      updateTouchCirclePosition(touch.endX, touch.endY)
     })
 
     window.addEventListener('touchend', () => {
@@ -241,14 +263,22 @@
       touch.startY = null
       touch.endX = null
       touch.endY = null
+
+      // Hide touch circle
+      touchCircle.style.display = 'none'
     })
+
+    function updateTouchCirclePosition(x, y) {
+      touchCircle.style.left = `${x}px`
+      touchCircle.style.top = `${y}px`
+    }
 
     function handleTouchControls() {
       if (touch.startX !== null && touch.startY !== null && touch.endX !== null && touch.endY !== null) {
         const deltaX = touch.startX - touch.endX
         const deltaY = touch.startY - touch.endY
 
-       touchIndicator.style.display = 'block'
+        touchIndicator.style.display = 'block'
 
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
           if (deltaX > 0) {
@@ -299,3 +329,4 @@
   </script>
 </body>
 </html>
+
