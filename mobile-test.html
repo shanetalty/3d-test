@@ -10,6 +10,20 @@
       position: relative;
     }
 
+    .touch-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.5);
+      color: #000;
+      font-size: 14px;
+      padding: 8px;
+      border-radius: 8px;
+      pointer-events: none;
+      display: none;
+    }
+
     .touch-circle {
       position: absolute;
       top: 0;
@@ -25,19 +39,19 @@
   </style>
 </head>
 <body>
+  <div class="touch-indicator">Swipe left or right</div>
   <div class="touch-circle"></div>
 
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three/examples/jsm/"
+        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
       }
     }
   </script>
   <script type="module">
     import * as THREE from 'three'
-    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(
@@ -51,9 +65,6 @@
     renderer.shadowMap.enabled = true
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
-
-    const controls = new OrbitControls(camera, renderer.domElement)
-    controls.enabled = false
 
     class Box extends THREE.Mesh {
       constructor({
@@ -205,6 +216,7 @@
       endY: null
     }
 
+    const touchIndicator = document.querySelector('.touch-indicator')
     const touchCircle = document.querySelector('.touch-circle')
 
     window.addEventListener('keydown', (event) => {
@@ -261,6 +273,29 @@
       touchCircle.style.top = `${y}px`
     }
 
+    function handleTouchControls() {
+      if (touch.startX !== null && touch.startY !== null && touch.endX !== null && touch.endY !== null) {
+        const deltaX = touch.startX - touch.endX
+        const deltaY = touch.startY - touch.endY
+
+        touchIndicator.style.display = 'block'
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX > 0) {
+            // Move cube left
+            cube.velocity.x = -0.05
+            touchIndicator.textContent = 'Swipe left'
+          } else {
+            // Move cube right
+            cube.velocity.x = 0.05
+            touchIndicator.textContent = 'Swipe right'
+          }
+        }
+      } else {
+        touchIndicator.style.display = 'none'
+      }
+    }
+
     function resetCube() {
       // Reset the cube's position, velocity, and other properties
       cube.position.set(0, 0, 0)
@@ -285,11 +320,7 @@
       }
 
       // Handle touch controls
-      cube.velocity.x = 0
-      if (touch.startX !== null && touch.endX !== null) {
-        const deltaX = (touch.endX - touch.startX) * 0.01
-        cube.velocity.x = deltaX
-      }
+      handleTouchControls()
 
       cube.update(ground)
     }
