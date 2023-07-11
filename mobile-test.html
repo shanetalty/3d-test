@@ -39,7 +39,7 @@
   </style>
 </head>
 <body>
-  <div class="touch-indicator"></div>
+  <div class="touch-indicator">Swipe left or right</div>
   <div class="touch-circle"></div>
 
   <script type="importmap">
@@ -256,12 +256,6 @@
 
       // Update touch circle position
       updateTouchCirclePosition(touch.endX, touch.endY)
-
-      // Calculate swipe distance and adjust cube velocity
-      const swipeDistance = touch.endX - touch.startX
-      const maxSwipeDistance = window.innerWidth / 3  // Adjust this value as needed
-
-      cube.velocity.x = swipeDistance / maxSwipeDistance * 0.05
     })
 
     window.addEventListener('touchend', () => {
@@ -272,14 +266,34 @@
 
       // Hide touch circle
       touchCircle.style.display = 'none'
-      
-      // Reset cube velocity
-      cube.velocity.x = 0
     })
 
     function updateTouchCirclePosition(x, y) {
       touchCircle.style.left = `${x}px`
       touchCircle.style.top = `${y}px`
+    }
+
+    function handleTouchControls() {
+      if (touch.startX !== null && touch.startY !== null && touch.endX !== null && touch.endY !== null) {
+        const deltaX = touch.startX - touch.endX
+        const deltaY = touch.startY - touch.endY
+
+        touchIndicator.style.display = 'block'
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX > 0) {
+            // Move cube left
+            cube.velocity.x = -0.05
+            touchIndicator.textContent = 'Swipe left'
+          } else {
+            // Move cube right
+            cube.velocity.x = 0.05
+            touchIndicator.textContent = 'Swipe right'
+          }
+        }
+      } else {
+        touchIndicator.style.display = 'none'
+      }
     }
 
     function resetCube() {
@@ -305,6 +319,9 @@
         cube.velocity.x = 0.05
       }
 
+      // Handle touch controls
+      handleTouchControls()
+
       cube.update(ground)
     }
 
@@ -312,3 +329,4 @@
   </script>
 </body>
 </html>
+
