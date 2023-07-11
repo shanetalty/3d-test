@@ -36,36 +36,17 @@
       pointer-events: none;
       display: none;
     }
-
-    .touch-trail {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background-color: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      pointer-events: none;
-      opacity: 0;
-      animation: fadeOut 0.5s ease-in-out forwards;
-    }
-
-    @keyframes fadeOut {
-      0% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="touch-indicator">Swipe left or right</div>
+  <div class="touch-indicator"></div>
   <div class="touch-circle"></div>
 
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three/build/three.module.js"
+        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
       }
     }
   </script>
@@ -264,11 +245,9 @@
       touch.startX = event.touches[0].clientX
       touch.startY = event.touches[0].clientY
 
-      // Show touch circle
+      // Show touch circle and update its position
       touchCircle.style.display = 'block'
-
-      // Initialize touch trail
-      createTouchTrail(touch.startX, touch.startY)
+      updateTouchCirclePosition(touch.startX, touch.startY)
     })
 
     window.addEventListener('touchmove', (event) => {
@@ -278,8 +257,11 @@
       // Update touch circle position
       updateTouchCirclePosition(touch.endX, touch.endY)
 
-      // Update touch trail
-      updateTouchTrail(touch.endX, touch.endY)
+      // Calculate swipe distance and adjust cube velocity
+      const swipeDistance = touch.endX - touch.startX
+      const maxSwipeDistance = window.innerWidth / 3  // Adjust this value as needed
+
+      cube.velocity.x = swipeDistance / maxSwipeDistance * 0.05
     })
 
     window.addEventListener('touchend', () => {
@@ -290,49 +272,14 @@
 
       // Hide touch circle
       touchCircle.style.display = 'none'
+      
+      // Reset cube velocity
+      cube.velocity.x = 0
     })
 
     function updateTouchCirclePosition(x, y) {
       touchCircle.style.left = `${x}px`
       touchCircle.style.top = `${y}px`
-    }
-
-    function createTouchTrail(x, y) {
-      const touchTrail = document.createElement('div')
-      touchTrail.classList.add('touch-trail')
-      touchTrail.style.left = `${x}px`
-      touchTrail.style.top = `${y}px`
-      document.body.appendChild(touchTrail)
-    }
-
-    function updateTouchTrail(x, y) {
-      const touchTrails = document.querySelectorAll('.touch-trail')
-      const lastTouchTrail = touchTrails[touchTrails.length - 1]
-      lastTouchTrail.style.left = `${x}px`
-      lastTouchTrail.style.top = `${y}px`
-    }
-
-    function handleTouchControls() {
-      if (touch.startX !== null && touch.startY !== null && touch.endX !== null && touch.endY !== null) {
-        const deltaX = touch.startX - touch.endX
-        const deltaY = touch.startY - touch.endY
-
-        touchIndicator.style.display = 'block'
-
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          if (deltaX > 0) {
-            // Move cube left
-            cube.velocity.x = -0.05
-            touchIndicator.textContent = 'Swipe left'
-          } else {
-            // Move cube right
-            cube.velocity.x = 0.05
-            touchIndicator.textContent = 'Swipe right'
-          }
-        }
-      } else {
-        touchIndicator.style.display = 'none'
-      }
     }
 
     function resetCube() {
@@ -357,9 +304,6 @@
       } else if (keys.d.pressed) {
         cube.velocity.x = 0.05
       }
-
-      // Handle touch controls
-      handleTouchControls()
 
       cube.update(ground)
     }
