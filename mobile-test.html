@@ -30,13 +30,14 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        "three": "https://unpkg.com/three/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three/examples/jsm/"
       }
     }
   </script>
   <script type="module">
     import * as THREE from 'three'
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(
@@ -50,6 +51,9 @@
     renderer.shadowMap.enabled = true
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
+
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enabled = false
 
     class Box extends THREE.Mesh {
       constructor({
@@ -281,7 +285,11 @@
       }
 
       // Handle touch controls
-      handleTouchControls()
+      cube.velocity.x = 0
+      if (touch.startX !== null && touch.endX !== null) {
+        const deltaX = (touch.endX - touch.startX) * 0.01
+        cube.velocity.x = deltaX
+      }
 
       cube.update(ground)
     }
