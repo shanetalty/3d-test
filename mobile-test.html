@@ -10,20 +10,6 @@
       position: relative;
     }
 
-    .touch-indicator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(255, 255, 255, 0.5);
-      color: #000;
-      font-size: 14px;
-      padding: 8px;
-      border-radius: 8px;
-      pointer-events: none;
-      display: none;
-    }
-
     .touch-circle {
       position: absolute;
       top: 0;
@@ -39,7 +25,6 @@
   </style>
 </head>
 <body>
-  <div class="touch-indicator">Swipe left or right</div>
   <div class="touch-circle"></div>
 
   <script type="importmap">
@@ -216,7 +201,6 @@
       endY: null
     }
 
-    const touchIndicator = document.querySelector('.touch-indicator')
     const touchCircle = document.querySelector('.touch-circle')
 
     window.addEventListener('keydown', (event) => {
@@ -273,29 +257,6 @@
       touchCircle.style.top = `${y}px`
     }
 
-    function handleTouchControls() {
-      if (touch.startX !== null && touch.startY !== null && touch.endX !== null && touch.endY !== null) {
-        const deltaX = touch.startX - touch.endX
-        const deltaY = touch.startY - touch.endY
-
-        touchIndicator.style.display = 'block'
-
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          if (deltaX > 0) {
-            // Move cube left
-            cube.velocity.x = -0.05
-            touchIndicator.textContent = 'Swipe left'
-          } else {
-            // Move cube right
-            cube.velocity.x = 0.05
-            touchIndicator.textContent = 'Swipe right'
-          }
-        }
-      } else {
-        touchIndicator.style.display = 'none'
-      }
-    }
-
     function resetCube() {
       // Reset the cube's position, velocity, and other properties
       cube.position.set(0, 0, 0)
@@ -329,4 +290,3 @@
   </script>
 </body>
 </html>
-
