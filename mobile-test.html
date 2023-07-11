@@ -36,6 +36,29 @@
       pointer-events: none;
       display: none;
     }
+
+    .touch-trail {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.1);
+      pointer-events: none;
+      opacity: 0;
+      animation: fadeOut 0.5s ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -45,8 +68,7 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        "three": "https://unpkg.com/three/build/three.module.js"
       }
     }
   </script>
@@ -218,6 +240,8 @@
 
     const touchIndicator = document.querySelector('.touch-indicator')
     const touchCircle = document.querySelector('.touch-circle')
+    const touchTrailContainer = document.createElement('div')
+    touchTrailContainer.classList.add('touch-trail')
 
     window.addEventListener('keydown', (event) => {
       switch (event.code) {
@@ -245,9 +269,12 @@
       touch.startX = event.touches[0].clientX
       touch.startY = event.touches[0].clientY
 
-      // Show touch circle and update its position
+      // Show touch circle and trail container
       touchCircle.style.display = 'block'
-      updateTouchCirclePosition(touch.startX, touch.startY)
+      touchTrailContainer.style.display = 'block'
+
+      // Initialize touch trail
+      updateTouchTrail(touch.startX, touch.startY)
     })
 
     window.addEventListener('touchmove', (event) => {
@@ -256,6 +283,9 @@
 
       // Update touch circle position
       updateTouchCirclePosition(touch.endX, touch.endY)
+
+      // Update touch trail
+      updateTouchTrail(touch.endX, touch.endY)
     })
 
     window.addEventListener('touchend', () => {
@@ -264,13 +294,28 @@
       touch.endX = null
       touch.endY = null
 
-      // Hide touch circle
+      // Hide touch circle and trail container
       touchCircle.style.display = 'none'
+      touchTrailContainer.style.display = 'none'
     })
 
     function updateTouchCirclePosition(x, y) {
       touchCircle.style.left = `${x}px`
       touchCircle.style.top = `${y}px`
+    }
+
+    function updateTouchTrail(x, y) {
+      const trailElement = document.createElement('div')
+      trailElement.classList.add('touch-trail')
+      trailElement.style.left = `${x}px`
+      trailElement.style.top = `${y}px`
+      touchTrailContainer.appendChild(trailElement)
+      document.body.appendChild(touchTrailContainer)
+
+      // Remove trail element after a delay
+      setTimeout(() => {
+        touchTrailContainer.removeChild(trailElement)
+      }, 500)
     }
 
     function handleTouchControls() {
@@ -329,4 +374,3 @@
   </script>
 </body>
 </html>
-
