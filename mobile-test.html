@@ -39,13 +39,10 @@
 
     .touch-trail {
       position: absolute;
-      top: 0;
-      left: 0;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      height: 100%;
+      width: 10px;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.2);
       border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.1);
       pointer-events: none;
       opacity: 0;
       animation: fadeOut 0.5s ease-in-out forwards;
@@ -240,8 +237,6 @@
 
     const touchIndicator = document.querySelector('.touch-indicator')
     const touchCircle = document.querySelector('.touch-circle')
-    const touchTrailContainer = document.createElement('div')
-    touchTrailContainer.classList.add('touch-trail')
 
     window.addEventListener('keydown', (event) => {
       switch (event.code) {
@@ -269,12 +264,11 @@
       touch.startX = event.touches[0].clientX
       touch.startY = event.touches[0].clientY
 
-      // Show touch circle and trail container
+      // Show touch circle
       touchCircle.style.display = 'block'
-      touchTrailContainer.style.display = 'block'
 
       // Initialize touch trail
-      updateTouchTrail(touch.startX, touch.startY)
+      createTouchTrail(touch.startX, touch.startY)
     })
 
     window.addEventListener('touchmove', (event) => {
@@ -294,9 +288,8 @@
       touch.endX = null
       touch.endY = null
 
-      // Hide touch circle and trail container
+      // Hide touch circle
       touchCircle.style.display = 'none'
-      touchTrailContainer.style.display = 'none'
     })
 
     function updateTouchCirclePosition(x, y) {
@@ -304,18 +297,19 @@
       touchCircle.style.top = `${y}px`
     }
 
-    function updateTouchTrail(x, y) {
-      const trailElement = document.createElement('div')
-      trailElement.classList.add('touch-trail')
-      trailElement.style.left = `${x}px`
-      trailElement.style.top = `${y}px`
-      touchTrailContainer.appendChild(trailElement)
-      document.body.appendChild(touchTrailContainer)
+    function createTouchTrail(x, y) {
+      const touchTrail = document.createElement('div')
+      touchTrail.classList.add('touch-trail')
+      touchTrail.style.left = `${x}px`
+      touchTrail.style.top = `${y}px`
+      document.body.appendChild(touchTrail)
+    }
 
-      // Remove trail element after a delay
-      setTimeout(() => {
-        touchTrailContainer.removeChild(trailElement)
-      }, 500)
+    function updateTouchTrail(x, y) {
+      const touchTrails = document.querySelectorAll('.touch-trail')
+      const lastTouchTrail = touchTrails[touchTrails.length - 1]
+      lastTouchTrail.style.left = `${x}px`
+      lastTouchTrail.style.top = `${y}px`
     }
 
     function handleTouchControls() {
